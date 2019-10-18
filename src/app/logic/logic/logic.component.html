@@ -1,0 +1,16 @@
+<button class='save' (click)='saveDataConfig()' type=”button”>Save</button>
+<p>Departments</p>
+<app-view
+  (onArrowClick)="handleExpandClick($event, 'Departments')"
+  [elements]="elements"
+  [path]="path"
+  (onCheck)="handleCheck($event, 'Departments')"
+></app-view>
+
+<p>Employees</p>
+<app-chilrden-tree-view
+  (onArrowClick)="handleExpandClick($event, 'Employees')"
+  [childElements]="childElements"
+  [childPath]="childPath"
+  (onCheck)="handleCheck($event, 'Employees')"
+></app-chilrden-tree-view>

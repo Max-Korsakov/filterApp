@@ -1,0 +1,44 @@
+<div
+  *ngIf="elements"
+  class="filter_element"
+  [ngStyle]="!elements.enable && { 'opacity': '0.4', 'pointer-events': 'none' }"
+>
+  <div class="filter_element_checkbox" [ngStyle]="elements.childrenChoosen &&!elements.choosen && { 'box-shadow': 'inset 0px 0px 8px 3px rgba(0,0,0,0.6)'}">
+    <input
+    
+    
+      type="checkbox"
+      [checked]="elements.choosen"
+      (change)="handleCheck(path)"
+    />
+  </div>
+  <div class="filter_element_title">
+    {{ elements.title }}
+  </div>
+  <div
+    *ngIf="elements.children && elements.children.length > 0"
+    class="filter_element_arrow"
+    (click)="handleExpandClick(path)"
+  >
+    <div class="filter_element_arrow-contaner"  [ngStyle]="elements.isExpanded && { 'background-color': 'rgb(160, 160, 160)'}">
+      <i *ngIf="!elements.isExpanded" class="material-icons filter_element_arrow-icon">
+        keyboard_arrow_right
+      </i>
+      <i *ngIf="elements.isExpanded" class="material-icons filter_element_arrow-icon">
+        keyboard_arrow_down
+      </i>
+    </div>
+  </div>
+
+  <div class="children" *ngIf="elements.isExpanded">
+    <app-view
+      *ngFor="let child of elements.children; let i = index"
+      [elements]="child"
+      [path]="getChildPath(i)"
+      (onCheck)="handleCheck($event)"
+      (onArrowClick)="handleExpandClick($event)"
+    ></app-view>
+  </div>
+</div>
+
+

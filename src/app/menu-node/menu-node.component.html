@@ -1,0 +1,23 @@
+<div class="filter_element">
+  <div class="filter_element_checkbox">
+    <input type="checkbox" [checked]="data.isChecked" (change)="handleCheck(path)" />
+  </div>
+  <div class="filter_element_title">
+    {{ data.title }}
+  </div>
+  <div *ngIf="hasChildrent()" class="filter_element_arrow" (click)="handleExpandClick()">
+    <div class="filter_element_arrow-contaner">
+      <i class="material-icons filter_element_arrow-icon">
+        keyboard_arrow_right
+      </i>
+    </div>
+  </div>
+  <div class="children" *ngIf="isExpanded">
+    <app-menu-node
+      *ngFor="let child of data.children; let i = index"
+      [data]="child"
+      [path]="getChildPath(i)"
+      (onCheck)="handleCheck($event)"
+    ></app-menu-node>
+  </div>
+</div>

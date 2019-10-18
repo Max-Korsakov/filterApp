@@ -1,0 +1,43 @@
+<div
+  *ngIf="childElements"
+  class="filter_element"
+  [ngStyle]="!childElements.enable && { 'opacity': '0.4', 'pointer-events': 'none' }"
+>
+  <div class="filter_element_checkbox" >
+    <input
+      type="checkbox"
+      [checked]="childElements.choosen"
+      (change)="handleCheck(childPath)"
+    />
+  </div>
+  <div class="filter_element_title">
+    {{ childElements.title }}
+  </div>
+  <div
+    *ngIf="childElements.children && childElements.children.length > 0"
+    class="filter_element_arrow"
+    (click)="handleExpandClick(childPath)"
+  >
+    <div class="filter_element_arrow-contaner"  [ngStyle]="childElements.isExpanded && { 'background-color': 'rgb(160, 160, 160)'}">
+      <i *ngIf="!childElements.isExpanded" class="material-icons filter_element_arrow-icon">
+        keyboard_arrow_right
+      </i>
+      <i *ngIf="childElements.isExpanded" class="material-icons filter_element_arrow-icon">
+        keyboard_arrow_down
+      </i>
+    </div>
+  </div>
+
+  <div class="children" *ngIf="childElements.isExpanded">
+    <app-chilrden-tree-view
+      *ngFor="let child of childElements.children; let i = index"
+      [childElements]="child"
+      [childPath]="getChildPath(i)"
+      (onCheck)="handleCheck($event)"
+      (onArrowClick)="handleExpandClick($event)"
+    ></app-chilrden-tree-view>
+  </div>
+</div>
+
+
+
