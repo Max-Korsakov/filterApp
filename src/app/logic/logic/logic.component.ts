@@ -2,7 +2,6 @@ import { Component, OnInit } from "@angular/core";
 import { FilterElement } from "../../shared/models";
 import { Trees } from "../../shared/models";
 import { DataService } from "../../services/data.service";
-import { createOfflineCompileUrlResolver } from "@angular/compiler";
 @Component({
   selector: "app-logic",
   templateUrl: "./logic.component.html",
@@ -13,6 +12,7 @@ export class LogicComponent implements OnInit {
   public path = [0];
   public childElements: FilterElement;
   public childPath = [0];
+  public timer = 0;
   constructor(private dataService: DataService) {}
 
   ngOnInit() {
@@ -44,7 +44,7 @@ export class LogicComponent implements OnInit {
         node.choosen = choosen;
         node.childrenChoosen = childrenChoosen;
         node.enable = true;
-        if (node.children.length > 0) {
+        if (node.children && node.children.length > 0) {
           node.children.map(child => {
             checkChildren(child);
           });
@@ -54,9 +54,6 @@ export class LogicComponent implements OnInit {
     checkChildren(node);
 
     this.disableNodes(path, tree);
-    this.elements = Object.assign({}, this.elements)
-    if(this.childElements){this.childElements = Object.assign({}, this.childElements)}
-    
   };
 
   disableNodes = (path, tree) => {
@@ -73,7 +70,9 @@ export class LogicComponent implements OnInit {
       });
       if (checkedNodes.length !== parentNode.children.length) {
         parentNode.choosen = false;
-        if(checkedNodes.length === 0) {parentNode.childrenChoosen = false}        
+        if (checkedNodes.length === 0) {
+          parentNode.childrenChoosen = false;
+        }
         if (newPath && newPath.length > 1) {
           this.disableNodes(newPath, tree);
         }
@@ -135,9 +134,12 @@ export class LogicComponent implements OnInit {
       anotherTree.isExpanded = false;
     }
     const checkChildren = node => {
-      if (node.children.length > 0) {
+      if (node.children && node.children.length > 0) {
         node.children.map(child => {
           if (!node.isExpanded) {
+            if (child.isExpanded) {
+              this.timer = this.timer + 105; //1055 -time of one element atimation, 
+            }
             child.isExpanded = false;
             checkChildren(child);
           }
@@ -154,9 +156,14 @@ export class LogicComponent implements OnInit {
         checkChildren(child);
       }
     });
-
-    parentNode.isExpanded = !parentNode.isExpanded;
     checkChildren(parentNode);
+
+    
+      setTimeout(() => {
+        parentNode.isExpanded = !parentNode.isExpanded;
+        this.timer = 0;
+      }, this.timer);
+    
   };
 
   getNodeByPath = (path, tree) => {
@@ -179,9 +186,11 @@ export class LogicComponent implements OnInit {
       if (node.choosen || node.childrenChoosen) {
         choosenNodes.push(node.id);
       }
-      node.children.forEach(node => {
-        createConfig(node);
-      });
+      if (node.children && node.children.length > 0) {
+        node.children.forEach(node => {
+          createConfig(node);
+        });
+      }
     };
     createConfig(this.elements);
     this.dataService.saveDataConfig(choosenNodes);

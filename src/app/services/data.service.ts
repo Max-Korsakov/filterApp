@@ -13,7 +13,6 @@ export class DataService {
 
   public dataUpdater = new BehaviorSubject(undefined);
   public childUpdater = new BehaviorSubject(undefined);
-  private _parentObject = {};
   private _childObject = {};
 
   getData(): Observable<any> {
@@ -23,93 +22,75 @@ export class DataService {
   setData() {
     this.getData().subscribe(data => {
       this.elementList = data;
-      this.parseData();
+      let configObj = this.parseData(this.elementList);
+      this.dataUpdater.next(configObj.nodesMap[configObj.rootId]);
     });
   }
 
-  parseData() {
-    let recurcyLimiter = 1;
-    let elementsArray = this.elementList.filter(item => {
-      return item.parent === null;
-    });
-    this._parentObject = elementsArray[0];
-    this._parentObject["children"] = [];
-    this._parentObject["title"] = "Departments";
-    const setChildren = object => {
-      recurcyLimiter = recurcyLimiter + object["children"].length;
-      let children = this.elementList.filter(element => {
-        return element.parent === object.id;
-      });
-      recurcyLimiter = recurcyLimiter + children.length;
-      if (children && children.length > 0) {
-        children.forEach(child => {
-          let node = {};
-          node = child;
-          node["children"] = [];
-
-          object["children"] = [...object["children"], node];
-
-          if (children.length <= 16) {
-            //решить этот вопрос
-            setChildren(node);
-          }
-        });
+  parseData(nodes) {
+    const nodesMap = {};
+    let rootId;
+    nodes.forEach(node => {
+      if (nodesMap[node.id]) {
+        Object.assign(nodesMap[node.id], node);
+      } else {
+        nodesMap[node.id] = node;
       }
-    };
-
-    setChildren(this._parentObject);
-
-    this.dataUpdater.next(this._parentObject);
+      if (node.parent) {
+        if (nodesMap[node.parent]) {
+          if (nodesMap[node.parent].children) {
+            nodesMap[node.parent].haveChildren = true;
+            nodesMap[node.parent].children.push(node);
+          } else {
+            nodesMap[node.parent].haveChildren = true;
+            nodesMap[node.parent].children = [node];
+          }
+        } else {
+          nodesMap[node.parent] = { children: [node] };
+          nodesMap[node.parent].haveChildren = true;
+        }
+      } else {
+        rootId = node.id;
+      }
+    });
+    return { nodesMap, rootId };
   }
 
-  parseChildData(config) {
-    let elementsArray = this.childElementList.filter(item => {
-      return item.parent === null;
-    });
-    this._childObject = elementsArray[0];
-    this._childObject["children"] = [];
-    this._childObject["enable"] = true;
-    this._childObject["title"] = "Employees";
-    const setChildren = object => {
-      let children = this.childElementList.filter(element => {
-        return element.parent === object.id;
-      });
-      if (children && children.length > 0) {
-        children.forEach(child => {
-      
-          let node = {};
-          node = child;
-          node["children"] = [];
-          object["children"] = [...object["children"], node];
-          if (children.length <= 16) {
-            setChildren(node);
-          }
-          config.forEach(id => {
-            if (id === child.connected || child.enable) {
-              child.enable = true;
-              object.enable = true;
-            }
-          });
-        });
-        
+  parseChildData(config, nodes) {
+    let parsedObj = this.parseData(nodes);
+    if(config && config.length>0){
+    for (let key in parsedObj.nodesMap) {
+      if (
+        parsedObj.nodesMap.hasOwnProperty(key) &&
+        config.includes(parsedObj.nodesMap[key].connected)
+      ) {
+        parsedObj.nodesMap[key].enable = true;
       }
-    };
+    }} else {
+      for (let key in parsedObj.nodesMap){
+        if (
+          parsedObj.nodesMap.hasOwnProperty(key) 
+          )
+         {
+          parsedObj.nodesMap[key].enable = true;
+        }
+      }
 
-    setChildren(this._childObject);
-    this.childUpdater.next(this._childObject);
+    }
+
+    return parsedObj.nodesMap[parsedObj.rootId];
   }
 
   saveDataConfig(config) {
     this.getData().subscribe(data => {
       this.childElementList = data;
-      this.childElementList.forEach(item => {   //just rundomizer
+      this.childElementList.forEach(item => {
         item.enable = false;
-        // item.connected = item.id;
-        item.connected = Math.floor(
-          Math.random() * this.childElementList.length + 1
-        );
+        item.connected = item.id;
       });
-      this.parseChildData(config);
+
+      this._childObject = this.parseChildData(config, this.childElementList);
+      this.childUpdater.next(this._childObject);
     });
   }
 }

@@ -1,9 +1,9 @@
 <div
   *ngIf="childElements"
   class="filter_element"
-  [ngStyle]="!childElements.enable && { 'opacity': '0.4', 'pointer-events': 'none' }"
+  [ngStyle]="!childElements.enable && { 'filter': 'opacity(40%)', 'pointer-events': 'none' }"
 >
-  <div class="filter_element_checkbox" >
+  <div class="filter_element_checkbox" [ngStyle]="childElements.childrenChoosen &&!childElements.choosen && { 'box-shadow': 'inset 0px 0px 8px 3px rgba(0,0,0,0.6)'}" >
     <input
       type="checkbox"
       [checked]="childElements.choosen"
@@ -28,7 +28,7 @@
     </div>
   </div>
 
-  <div class="children" *ngIf="childElements.isExpanded">
+  <div class="children" *ngIf="childElements.isExpanded" @collapsedPanel >
     <app-chilrden-tree-view
       *ngFor="let child of childElements.children; let i = index"
       [childElements]="child"

@@ -1,4 +1,4 @@
-<div
+<div 
   *ngIf="elements"
   class="filter_element"
   [ngStyle]="!elements.enable && { 'opacity': '0.4', 'pointer-events': 'none' }"
@@ -30,15 +30,18 @@
     </div>
   </div>
 
-  <div class="children" *ngIf="elements.isExpanded">
+  <main class="children" *ngIf="elements.isExpanded" @collapsedPanel
+  (@collapsedPanel.start)="animStart($event)"
+      (@collapsedPanel.done)="animEnd($event)">
     <app-view
       *ngFor="let child of elements.children; let i = index"
       [elements]="child"
       [path]="getChildPath(i)"
       (onCheck)="handleCheck($event)"
       (onArrowClick)="handleExpandClick($event)"
+
     ></app-view>
-  </div>
+  </main>
 </div>
 
 

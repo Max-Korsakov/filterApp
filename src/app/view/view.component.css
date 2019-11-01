@@ -9,19 +9,18 @@
   background-color: white;
   box-sizing: border-box;
   margin-top: -1px;
-  animation-name: appearence;
-  animation-duration: 0.2s;
+ 
+  animation-fill-mode: forwards;
+  
 }
-@keyframes appearence {
-  from {opacity: 0;}
-  to {opacity: 1;}
-}
+
 .filter_element_checkbox {
   display: flex;
   align-items: center;
   justify-content: center;
   width: 20%;
   cursor: pointer;
+  
 }
 
 .filter_element_checkbox > input {
@@ -48,6 +47,7 @@
   cursor: pointer;
   width: 100%;
   height: 100%;
+  
 }
 .filter_element_arrow-contaner:hover {
   background-color: gainsboro;
@@ -63,6 +63,6 @@
 .children {
   position: absolute;
   top: 0;
-  left: 100%;
+  left:100%;
 }
 
